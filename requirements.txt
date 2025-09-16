@@ -1,0 +1,8 @@
+pandas
+backtesting
+matplotlib
+yfinance
+dotenv
+alpaca
+alpaca-trade-api
+alpaca-py
