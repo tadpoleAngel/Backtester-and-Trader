@@ -20,8 +20,8 @@ TRANSACTION_BPS = 1          # Per-side, in basis points
 MAX_POSITIONS = 3            # Max signals to take per day
 ALLOC_PER_TRADE = 0.25       # Max allocation per trade (fraction of equity)
 MODE = "revert"              # "revert" | "momentum" | "both"
-TRADING_START = time(3, 50)  # Edit as needed 24 hr
-TRADING_END = time(4, 00)    # Edit as needed 24 hr
+TRADING_START = time(15, 50)  # Edit as needed 24 hr
+TRADING_END = time(16, 00)    # Edit as needed 24 hr
 
 # =====================
 # Alpaca API Setup
