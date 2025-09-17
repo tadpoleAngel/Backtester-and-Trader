@@ -22,6 +22,7 @@ ALLOC_PER_TRADE = 0.25       # Max allocation per trade (fraction of equity)
 MODE = "revert"              # "revert" | "momentum" | "both"
 TRADING_START = time(15, 50)  # Edit as needed 24 hr
 TRADING_END = time(16, 00)    # Edit as needed 24 hr
+CLOSE_POSITIONS_TIME = time(16, 1) # Edit as needed 24 hr
 
 # =====================
 # Alpaca API Setup
@@ -169,20 +170,24 @@ def urgent_listener():
     print(errors)
     os._exit(os.EX_OK)
 
-
-def trading_window_sleep(now):
-    print(f"It's {now.time()}, on {now.date()} I'll just nap until it's time for me to place some trades.")
-    print(f"\nSleeping until {TRADING_END.strftime('%H:%M')} EST...")
-    sleep_until(datetime.combine(now.date(), TRADING_END))
-
 def outside_window_sleep(now):
     positions = trading_client.get_all_positions()
+    had_to_close = False
     if positions:
         print(f"\nIt's {now.time()}, on {now.date()} and I've got open positions!")
         print("Closing all open positions...")
-    close_all_positions()
+        close_all_positions()
+        had_to_close = True
+    else:
+        print("Looks like I dont't have any positions to close :( Oh well, I'll bet I get extra trades tommorrow")
+    print(f"{"It's" if had_to_close else "it's"} {now.time()}, on {now.date()} I'll just nap until it's time for me to place some trades.")
     print(f"\nSleeping until {TRADING_START.strftime('%H:%M')} EST...")
     sleep_until(TRADING_START)
+
+def nap_to_close():
+    print("I'm napping 'till its time to close my positions...")
+    print("See you soon!...")
+    sleep_until(CLOSE_POSITIONS_TIME)
 
 def main():
     assets = get_active_assets()
@@ -195,6 +200,7 @@ def main():
             if in_trading_window(now):
                 print(f"\nTrading window open. Placing trades...")
                 for symbol in assets:
+                    if not in_trading_window(): break
                     try:
                         current_bar = get_current_bar(symbol)
                         historical_data = get_historical_data(symbol)
@@ -209,7 +215,8 @@ def main():
                     except Exception as e:
                         print(f"Error processing {symbol}: {e}")
                         errors.append(e)
-                trading_window_sleep(now)
+                print()
+                nap_to_close()
             else:
                 outside_window_sleep(now)
         except Exception as e:
