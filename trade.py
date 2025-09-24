@@ -20,8 +20,8 @@ TRANSACTION_BPS = 1          # Per-side, in basis points
 MAX_POSITIONS = 3            # Max signals to take per day
 ALLOC_PER_TRADE = 0.25       # Max allocation per trade (fraction of equity)
 MODE = "revert"              # "revert" | "momentum" | "both"
-TRADING_START = time(15, 50)  # Edit as needed 24 hr
-TRADING_END = time(16, 00)    # Edit as needed 24 hr
+TRADING_START = time(22, 34)  # Edit as needed 24 hr 1550
+TRADING_END = time(23, 00)    # Edit as needed 24 hr 1600
 CLOSE_POSITIONS_TIME = time(16, 1) # Edit as needed 24 hr
 
 # =====================
@@ -125,9 +125,10 @@ def print_time_status():
 
 def in_trading_window(now=None):
     if now is None:
-        now = datetime.now().time()
+        # Fancy way of rounding to nearest second
+        now = (datetime.now() + timedelta(milliseconds=500)).replace(microsecond=0).time()
     elif isinstance(now, datetime):
-        now = now.time()
+        now = (now + timedelta(milliseconds=500)).replace(microsecond=0).time()
     return TRADING_START <= now <= TRADING_END
 
 def seconds_until(dt):
@@ -138,17 +139,21 @@ def seconds_until(dt):
             target += timedelta(days=1)
     else:
         target = dt
-    return max(1, int((target - now).total_seconds()))
+    return int((target - now).total_seconds())
 
 def sleep_until(dt, message=None):
     if message:
         print(message)
     
     secs = seconds_until(dt)
-    while secs > 0 and not stop_script:
+
+    while 0 < secs and not stop_script:
         print(f"\rSleeping for {secs//60//60:02d}:{secs%(60*60)//60:02d}:{secs%60}...", end="")
-        secs = seconds_until(dt)
         sleepy_time.sleep(1)
+
+        # I'd reccomend keeping this here after the sleep if possible
+        # to give the while loop the most accurate data
+        secs = seconds_until(dt)
 
 stop_script = False
 errors = []
@@ -180,7 +185,7 @@ def outside_window_sleep(now):
         had_to_close = True
     else:
         print("Looks like I dont't have any positions to close :( Oh well, I'll bet I get extra trades tommorrow")
-    print(f"{"It's" if had_to_close else "it's"} {now.time()}, on {now.date()} I'll just nap until it's time for me to place some trades.")
+    print(f"{"It's" if had_to_close else "Anyways it's"} {now.time()}, on {now.date()} I'll just nap until it's time for me to place some trades.")
     print(f"\nSleeping until {TRADING_START.strftime('%H:%M')} EST...")
     sleep_until(TRADING_START)
 
@@ -190,7 +195,8 @@ def nap_to_close():
     sleep_until(CLOSE_POSITIONS_TIME)
 
 def main():
-    assets = get_active_assets()
+    # assets = get_active_assets()
+    assets = ["SPY", "HIMS", "SMR", "NBIS", "QQQ", "OMEX", "AMBA", "PTNM", "AAPL", "MSFT", "V", "NVDA", "TSLA", "VTI", "HOOD"]
     equity = get_equity()
     print(f"Starting trading loop with equity: ${equity:.2f}")
     print_time_status()
@@ -230,6 +236,3 @@ if __name__ == "__main__":
     urgent_thread.daemon = True
     urgent_thread.start()
     main()
-
-# if __name__ == "__main__":
-#     main()
