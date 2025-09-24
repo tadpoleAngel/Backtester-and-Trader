@@ -200,6 +200,7 @@ def main():
     equity = get_equity()
     print(f"Starting trading loop with equity: ${equity:.2f}")
     print_time_status()
+    print()
     while not stop_script:
         now = datetime.now()
         try:
