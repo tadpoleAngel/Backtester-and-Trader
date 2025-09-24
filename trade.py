@@ -20,8 +20,8 @@ TRANSACTION_BPS = 1          # Per-side, in basis points
 MAX_POSITIONS = 3            # Max signals to take per day
 ALLOC_PER_TRADE = 0.25       # Max allocation per trade (fraction of equity)
 MODE = "revert"              # "revert" | "momentum" | "both"
-TRADING_START = time(22, 34)  # Edit as needed 24 hr 1550
-TRADING_END = time(23, 00)    # Edit as needed 24 hr 1600
+TRADING_START = time(15, 50)  # Edit as needed 24 hr 1550
+TRADING_END = time(16, 00)    # Edit as needed 24 hr 1600
 CLOSE_POSITIONS_TIME = time(16, 1) # Edit as needed 24 hr
 
 # =====================
